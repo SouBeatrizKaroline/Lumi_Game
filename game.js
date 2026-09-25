@@ -195,10 +195,9 @@ function drawSky(level) {
   const sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, top); sky.addColorStop(1, horizon);
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
   if (forestArt.complete && forestArt.naturalWidth) {
-    const offset = camera * .12 % W;
-    ctx.globalAlpha = .88;
-    ctx.drawImage(forestArt, -offset, 0, W * 1.45, H);
-    ctx.drawImage(forestArt, W * 1.45 - offset, 0, W * 1.45, H);
+    ctx.globalAlpha = .78;
+    // Scale the whole illustration to one viewport so its horizon and bridge line up with gameplay.
+    ctx.drawImage(forestArt, 0, 0, W, H);
     ctx.globalAlpha = 1;
   }
   const parallax = camera * .15;
@@ -247,10 +246,14 @@ function drawTree(x, base, scale = 1, ancestral = false) {
 }
 function drawWorld(level) {
   if (forestArt.complete && forestArt.naturalWidth) {
-    // The illustrated reference scene spans the route and scrolls more slowly than the foreground.
-    const sourceX = (camera / Math.max(1, world.width - W)) * (forestArt.naturalWidth - 1280);
-    ctx.globalAlpha = .78;
-    ctx.drawImage(forestArt, sourceX, 310, 1280, 410, camera * .3, 250, world.width * .6, 420);
+    // Reuse the authored illustration in broad parallax panels behind the collision geometry.
+    ctx.globalAlpha = .62;
+    const panelWidth = 1850;
+    const shift = camera * .33;
+    for (let panel = 0; panel < 4; panel++) {
+      const x = panel * panelWidth + shift;
+      ctx.drawImage(forestArt, 0, 280, forestArt.naturalWidth, 470, x, 155, panelWidth, 447);
+    }
     ctx.globalAlpha = 1;
   }
   for (let i = 0; i < 26; i++) drawTree(i * 255 + 70, 604, .75 + (i % 3) * .12);
@@ -266,11 +269,19 @@ function drawWorld(level) {
   ctx.fillStyle = water; ctx.fillRect(3130, world.ground + 8, 700, 96);
   for (let x = 3150; x < 3820; x += 56) { ctx.strokeStyle = '#a2f1eb'; ctx.globalAlpha = .55; ctx.beginPath(); ctx.moveTo(x + Math.sin(time * 2 + x) * 8, 630 + (x % 4) * 8); ctx.lineTo(x + 23, 630 + (x % 4) * 8); ctx.stroke(); }
   ctx.globalAlpha = 1;
-  roundedRect(3160, 562, 640, 24, 6, '#755548');
-  for (let x = 3180; x < 3790; x += 68) { ctx.fillStyle = '#aa7956'; ctx.fillRect(x, 558, 6, 31); }
+  roundedRect(3160, 558, 640, 27, 6, '#755548');
+  for (let x = 3180; x < 3790; x += 68) { ctx.fillStyle = '#aa7956'; ctx.fillRect(x, 555, 6, 34); }
+  ctx.fillStyle = '#574252';
+  for (let x = 3175; x < 3790; x += 105) ctx.fillRect(x, 584, 9, 30);
   for (const platform of world.platforms) drawPlatform(platform, level);
   for (let x = 650; x < world.width; x += 510) drawMushroom(x, world.ground - 1, 1 + level * .6);
   drawTree(5500, world.ground, 1.65, true);
+  // The glowing ancestral tree silhouette grows brighter with the rescued stars.
+  ctx.save(); ctx.translate(5485, 375); ctx.globalAlpha = .38 + level * .11;
+  ctx.fillStyle = '#ffd46b'; ctx.shadowColor = '#ffcb55'; ctx.shadowBlur = 36;
+  ctx.beginPath(); ctx.ellipse(0, 0, 115, 125, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.translate(5500, world.ground); ctx.strokeStyle = '#ffdf8d'; ctx.lineWidth = 11; ctx.shadowColor = '#ffd46b'; ctx.shadowBlur = 28;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -205); ctx.moveTo(0, -130); ctx.quadraticCurveTo(-55, -170, -90, -220); ctx.moveTo(0, -155); ctx.quadraticCurveTo(60, -190, 95, -237); ctx.stroke(); ctx.restore();
   // Lanterns and small fireflies respond to the forest's returned light.
   for (let x = 890; x < world.width - 400; x += 980) {
     ctx.strokeStyle = '#785b58'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x, 485); ctx.lineTo(x, 548); ctx.stroke();
@@ -303,7 +314,7 @@ function drawLumi() {
     else if (Math.abs(player.vx) > 28) pose = Math.floor(player.anim / 5) % 2 + 1;
     const [column, row] = spriteFrames[pose];
     const sourceX = column * frameWidth, sourceY = row * frameHeight;
-    const destinationWidth = 110, destinationHeight = 112;
+    const destinationWidth = 88, destinationHeight = 92;
     ctx.save();
     ctx.translate(player.x + player.w / 2, player.y + player.h / 2);
     ctx.scale(player.facing, 1);
