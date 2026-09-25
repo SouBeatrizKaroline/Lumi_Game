@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101b3d" />
+  <meta name="description" content="Lumi & the Lost Stars — a cozy 2D exploration platformer." />
+  <title>Lumi & the Lost Stars</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="hud" aria-label="Game status">
+      <div class="brand"><span class="brand-star">✦</span><span>Lumi <em>&amp; the Lost Stars</em></span></div>
+      <div class="status-row">
+        <span class="progress-label" id="progressText">0 / 23 stars</span>
+        <button class="icon-button" id="soundButton" type="button" aria-label="Toggle sound" aria-pressed="false">♫</button>
+        <button class="icon-button" id="contrastButton" type="button" aria-label="Toggle high contrast" aria-pressed="false">◐</button>
+      </div>
+    </header>
+    <section class="game-wrap" aria-label="Playable game area">
+      <canvas id="game" width="1280" height="720" tabindex="0" aria-label="Lumi platform game. Use arrow keys or A and D to move, and Space to jump."></canvas>
+      <div class="message" id="message" role="status" aria-live="polite"></div>
+      <div class="touch-controls" aria-label="Touch controls">
+        <button data-key="left" aria-label="Move left">◀</button><button data-key="jump" aria-label="Jump">✦</button><button data-key="right" aria-label="Move right">▶</button>
+      </div>
+      <div class="help"><span>A/D or ←/→ move</span><span>Space jumps</span><span>R respawns</span></div>
+    </section>
+    <footer><span>cozy exploration • no Game Over</span><span id="checkpointText">Checkpoint: forest edge</span></footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
