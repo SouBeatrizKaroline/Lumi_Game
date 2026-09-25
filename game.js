@@ -4,7 +4,7 @@ const W = canvas.width;
 const H = canvas.height;
 const keys = new Set();
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const assetVersion = '?v=illustrated-2';
+const assetVersion = '?v=illustrated-3';
 const forestArt = new Image(); forestArt.src = `forest-art.png${assetVersion}`;
 const lumiArt = new Image(); lumiArt.src = `lumi-spritesheet.png${assetVersion}`;
 const spriteFrames = [
@@ -195,12 +195,6 @@ function drawSky(level) {
   const [top, horizon] = palettes[level];
   const sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, top); sky.addColorStop(1, horizon);
   ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-  if (forestArt.complete && forestArt.naturalWidth) {
-    ctx.globalAlpha = .78;
-    // Scale the whole illustration to one viewport so its horizon and bridge line up with gameplay.
-    ctx.drawImage(forestArt, 0, 0, W, H);
-    ctx.globalAlpha = 1;
-  }
   const parallax = camera * .15;
   for (let i = 0; i < 65; i++) {
     const x = ((i * 197 - parallax * (1 + i % 3) + world.width) % world.width);
@@ -247,13 +241,13 @@ function drawTree(x, base, scale = 1, ancestral = false) {
 }
 function drawWorld(level) {
   if (forestArt.complete && forestArt.naturalWidth) {
-    // Reuse the authored illustration in broad parallax panels behind the collision geometry.
-    ctx.globalAlpha = .62;
-    const panelWidth = 1850;
-    const shift = camera * .33;
-    for (let panel = 0; panel < 4; panel++) {
-      const x = panel * panelWidth + shift;
-      ctx.drawImage(forestArt, 0, 280, forestArt.naturalWidth, 470, x, 155, panelWidth, 447);
+    // Reuse the authored illustration as broad parallax forest panels behind the gameplay.
+    ctx.globalAlpha = .82;
+    const panelWidth = 3000;
+    const shift = camera * .22;
+    for (let panel = 0; panel < 3; panel++) {
+      const x = panel * panelWidth - shift;
+      ctx.drawImage(forestArt, 0, 140, forestArt.naturalWidth, 710, x, 0, panelWidth, 602);
     }
     ctx.globalAlpha = 1;
   }
@@ -315,7 +309,7 @@ function drawLumi() {
     else if (Math.abs(player.vx) > 28) pose = Math.floor(player.anim / 5) % 2 + 1;
     const [column, row] = spriteFrames[pose];
     const sourceX = column * frameWidth, sourceY = row * frameHeight;
-    const destinationWidth = 88, destinationHeight = 92;
+    const destinationWidth = 132, destinationHeight = 136;
     ctx.save();
     ctx.translate(player.x + player.w / 2, player.y + player.h / 2);
     ctx.scale(player.facing, 1);
