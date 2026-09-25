@@ -166,13 +166,14 @@ function move(dt) {
   for (const star of world.stars) {
     if (!star.got && Math.hypot(player.x + 20 - star.x, player.y + 30 - star.y) < 39) {
       star.got = true; burst(star.x, star.y, star.secret ? '#b8e9ff' : '#ffe486', 18); sound(star.secret ? 880 : 720);
-      say(star.secret ? 'Secret star found!' : 'A star remembers you.', 1.3);
+      say(star.secret ? 'Estrela secreta encontrada!' : 'Uma estrela voltou a brilhar.', 1.3);
     }
   }
   world.checkpoints.forEach((checkpoint, index) => {
-    if (player.x >= checkpoint.x && player.checkpoint < index) { player.checkpoint = index; burst(checkpoint.x + 20, world.ground - 44, '#9de8d0', 10); say(`Checkpoint: ${checkpoint.name}`, 1.8); }
+    if (player.x >= checkpoint.x && player.checkpoint < index) { player.checkpoint = index; burst(checkpoint.x + 20, world.ground - 44, '#9de8d0', 10); say(`Ponto de retorno ativado`, 1.8); }
   });
-  document.querySelector('#checkpointText').textContent = `Checkpoint: ${world.checkpoints[player.checkpoint].name}`;
+  const checkpointNames = ['início da floresta', 'bosque dos cogumelos', 'ponte do riacho', 'clareira ancestral'];
+  document.querySelector('#checkpointText').textContent = `Ponto de retorno: ${checkpointNames[player.checkpoint]}`;
   if (player.y > H + 160) respawn();
   if (player.x > world.width - 150 && world.stars.filter(star => !star.secret && star.got).length === 20) {
     won = true; say('The forest remembers its light.', 10); burst(player.x, player.y, '#ffe486', 70); sound(990);
