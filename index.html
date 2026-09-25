@@ -15,6 +15,8 @@
     <header class="hud" aria-label="Game status">
       <div class="brand"><span class="brand-star">✦</span><span>Lumi <em>&amp; the Lost Stars</em></span></div>
       <div class="status-row">
+        <button id="pauseButton" type="button">Pausar</button>
+        <button id="motionButton" type="button" aria-pressed="false">Movimento reduzido</button>
         <span class="progress-label" id="progressText">✦ 0/20　✧ 0/3</span>
         <button class="icon-button" id="soundButton" type="button" aria-label="Alternar som" aria-pressed="false">♫</button>
         <button class="icon-button" id="contrastButton" type="button" aria-label="Alternar alto contraste" aria-pressed="false">◐</button>
@@ -23,6 +25,12 @@
     <section class="game-wrap" aria-label="Área jogável">
       <canvas id="game" width="1280" height="720" tabindex="0" aria-label="Jogo de plataforma da Lumi. Use as setas ou A e D para andar, Espaço para pular."></canvas>
       <div class="message" id="message" role="status" aria-live="polite"></div>
+      <div id="ending" hidden style="position:absolute;inset:15%;background:#101b3df5;padding:30px;text-align:center;border:1px solid #ffd86b;border-radius:20px">
+        <h1>The forest remembers its light.</h1>
+        <p>As 20 estrelas voltaram à floresta. Você pode continuar procurando as três secretas.</p>
+        <button id="explore">Explorar a floresta</button>
+        <button id="restart">Jogar novamente</button>
+      </div>
       <div class="touch-controls" aria-label="Controles de toque">
         <button data-key="left" aria-label="Mover para esquerda">◀</button><button data-key="jump" aria-label="Pular">✦</button><button data-key="right" aria-label="Mover para direita">▶</button>
       </div>
@@ -30,6 +38,7 @@
     </section>
     <footer><span>✦ exploração mágica · sem Game Over</span><span id="checkpointText">Checkpoint: início da floresta</span></footer>
   </main>
-  <script src="game.js?v=illustrated-3"></script>
+  <script src="physics.js?v=coherent-4"></script>
+  <script src="game.js?v=coherent-4"></script>
 </body>
 </html>

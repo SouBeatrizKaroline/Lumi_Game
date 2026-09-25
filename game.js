@@ -3,8 +3,8 @@ const ctx = canvas.getContext('2d');
 const W = canvas.width;
 const H = canvas.height;
 const keys = new Set();
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const assetVersion = '?v=illustrated-3';
+let reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const assetVersion = '?v=coherent-4';
 const forestArt = new Image(); forestArt.src = `forest-art.png${assetVersion}`;
 const lumiArt = new Image(); lumiArt.src = `lumi-spritesheet.png${assetVersion}`;
 const spriteFrames = [
@@ -44,6 +44,8 @@ const particles = [];
 let camera = 0;
 let time = 0;
 let won = false;
+let paused = false;
+let endingShown = false;
 let muted = false;
 let audio;
 let last = 0;
@@ -79,11 +81,11 @@ function sound(frequency = 660) {
 }
 function respawn() {
   const checkpoint = world.checkpoints[player.checkpoint];
-  player.x = checkpoint.x; player.y = 500; player.vx = 0; player.vy = 0;
-  say('A soft landing. Keep going.', 1.5);
+  player.x = checkpoint.x; player.y = checkpoint.x === 3130 ? 496 : 540; player.vx = 0; player.vy = 0; player.buffer = 0; player.coyote = 0; player.onGround = false;
+  say('De volta ao ponto seguro. As estrelas continuam com você.', 2);
 }
 function setKey(key, pressed) {
-  if (pressed) keys.add(key); else keys.delete(key);
+  if (pressed) keys.add(key); else { keys.delete(key); if ([' ', 'w', 'arrowup'].includes(key) && player.vy < -330) player.vy = -330; }
 }
 function jumpPressed() {
   player.buffer = .17;
@@ -94,9 +96,10 @@ addEventListener('keydown', event => {
   if (!keys.has(key) && [' ', 'w', 'arrowup'].includes(key)) jumpPressed();
   setKey(key, true);
   if (key === 'r') respawn();
+  if (key === 'escape' && !event.repeat) togglePause();
 });
 addEventListener('keyup', event => setKey(event.key.toLowerCase(), false));
-addEventListener('blur', () => keys.clear());
+addEventListener('blur', () => { keys.clear(); if (!won) { paused = true; document.querySelector('#pauseButton').textContent = 'Continuar'; } });
 document.querySelectorAll('.touch-controls button').forEach(button => {
   const key = button.dataset.key === 'left' ? 'arrowleft' : button.dataset.key === 'right' ? 'arrowright' : ' ';
   button.addEventListener('pointerdown', event => { event.preventDefault(); button.setPointerCapture(event.pointerId); setKey(key, true); if (key === ' ') jumpPressed(); });
@@ -122,44 +125,21 @@ function move(dt) {
   else player.vx *= Math.exp(-(player.onGround ? 11 : 2.2) * dt);
   player.vx = Math.max(-300, Math.min(300, player.vx));
 
-  if ((keys.has(' ') || keys.has('w') || keys.has('arrowup')) && player.onGround) jumpPressed();
+
   player.buffer = Math.max(0, player.buffer - dt);
   if (player.onGround) player.coyote = .14;
   else player.coyote = Math.max(0, player.coyote - dt);
   if (player.buffer > 0 && (player.onGround || player.coyote > 0)) {
-    player.vy = -650; player.onGround = false; player.coyote = 0; player.buffer = 0;
+    player.vy = -760; player.onGround = false; player.coyote = 0; player.buffer = 0;
     burst(player.x + player.w / 2, player.y + player.h, '#91cfff', 5); sound(480);
   }
 
-  // Substeps prevent tunnelling through narrow platforms at high fall speeds.
-  const steps = Math.max(1, Math.ceil(dt * Math.max(Math.abs(player.vx), Math.abs(player.vy)) / 9));
-  const step = dt / steps;
-  for (let i = 0; i < steps; i++) {
-    const oldBottom = player.y + player.h;
-    player.x = Math.max(0, Math.min(world.width - player.w, player.x + player.vx * step));
-    player.vy = Math.min(900, player.vy + 1700 * step);
-    player.y += player.vy * step;
-    player.onGround = false;
-    let floor = player.y + player.h >= world.ground ? world.ground : Infinity;
-    for (const platform of world.platforms) {
-      const overlapsX = player.x + player.w - 7 > platform.x && player.x + 7 < platform.x + platform.w;
-      if (overlapsX && player.vy >= 0 && oldBottom <= platform.y + 2 && player.y + player.h >= platform.y) floor = Math.min(floor, platform.y);
-      // The platforms have solid sides and undersides, so Lumi can land, bump, and stand on them.
-      const overlapsY = player.y < platform.y + platform.h && player.y + player.h > platform.y;
-      const crossedRight = player.x + player.w > platform.x && player.x + player.w - player.vx * step <= platform.x;
-      const crossedLeft = player.x < platform.x + platform.w && player.x - player.vx * step >= platform.x + platform.w;
-      if (overlapsY && crossedRight) player.x = platform.x - player.w;
-      if (overlapsY && crossedLeft) player.x = platform.x + platform.w;
-      if (player.vy < 0 && overlapsX && player.y < platform.y + platform.h && player.y - player.vy * step >= platform.y + platform.h) {
-        player.y = platform.y + platform.h; player.vy = 35;
-      }
-    }
-    if (floor !== Infinity && player.y + player.h >= floor && player.vy >= 0) {
-      player.y = floor - player.h;
-      if (!player.onGround && player.vy > 130) { player.land = 1; burst(player.x + player.w / 2, floor, '#91cfff', 4); }
-      player.vy = 0; player.onGround = true;
-    }
-  }
+  const solids = [...world.platforms,
+    {x:0,y:602,w:3130,h:300}, {x:3830,y:602,w:2370,h:300},
+    {x:3100,y:558,w:760,h:27}];
+  const landed = LumiPhysics.step(player, solids, dt);
+  player.x = Math.max(0, Math.min(world.width - player.w, player.x));
+  if (landed) { player.land = 1; burst(player.x + 20, player.y + player.h, '#91cfff', 4); }
 
   player.anim += dt * (player.onGround ? Math.abs(player.vx) * .045 : 4);
   player.land = Math.max(0, player.land - dt * 4);
@@ -170,13 +150,13 @@ function move(dt) {
     }
   }
   world.checkpoints.forEach((checkpoint, index) => {
-    if (player.x >= checkpoint.x && player.checkpoint < index) { player.checkpoint = index; burst(checkpoint.x + 20, world.ground - 44, '#9de8d0', 10); say(`Ponto de retorno ativado`, 1.8); }
+    if (Math.abs(player.x - checkpoint.x) < 75 && player.y > 440 && player.checkpoint < index) { player.checkpoint = index; burst(checkpoint.x + 20, world.ground - 44, '#9de8d0', 10); say(`Ponto de retorno ativado`, 1.8); }
   });
   const checkpointNames = ['início da floresta', 'bosque dos cogumelos', 'ponte do riacho', 'clareira ancestral'];
   document.querySelector('#checkpointText').textContent = `Ponto de retorno: ${checkpointNames[player.checkpoint]}`;
-  if (player.y > H + 160) respawn();
-  if (player.x > world.width - 150 && world.stars.filter(star => !star.secret && star.got).length === 20) {
-    won = true; say('The forest remembers its light.', 10); burst(player.x, player.y, '#ffe486', 70); sound(990);
+  if (player.y > H + 100) respawn();
+  if (!endingShown && player.x > 5420 && world.stars.filter(star => !star.secret && star.got).length === 20) {
+    won = true; endingShown = true; document.querySelector('#ending').hidden = false; keys.clear(); player.vx = 0; say('The forest remembers its light.', 10); burst(player.x, player.y, '#ffe486', 70); sound(990);
   }
   const targetCamera = Math.max(0, Math.min(world.width - W, player.x - W * .36));
   camera += (targetCamera - camera) * Math.min(1, dt * 5);
@@ -212,9 +192,14 @@ function drawSky(level) {
   }
 }
 function drawPlatform(platform, level) {
-  roundedRect(platform.x, platform.y + 8, platform.w, platform.h + 16, 7, '#172038');
+  // The rock's solid body exactly matches the collision rectangle.
+  ctx.save();
   roundedRect(platform.x, platform.y, platform.w, platform.h, 7, level > 1 ? '#344e55' : '#364252');
   roundedRect(platform.x, platform.y, platform.w, 8, 5, level > 2 ? '#94c58b' : '#78a77b');
+  ctx.strokeStyle = '#788997'; ctx.lineWidth = 1;
+  for (let x = platform.x + 9; x < platform.x + platform.w; x += 23) {
+    ctx.beginPath(); ctx.moveTo(x,platform.y+9); ctx.lineTo(x+9,platform.y+platform.h); ctx.stroke();
+  }
   ctx.fillStyle = '#b5d79a';
   for (let x = platform.x + 14; x < platform.x + platform.w - 6; x += 32) {
     const wave = Math.sin(time * 3 + x * .06) * 2;
@@ -243,7 +228,8 @@ function drawTree(x, base, scale = 1, ancestral = false) {
 function drawWorld(level) {
   if (forestArt.complete && forestArt.naturalWidth) {
     // Reuse the authored illustration as broad parallax forest panels behind the gameplay.
-    ctx.globalAlpha = .82;
+    ctx.globalAlpha = .30 + level * .08;
+    ctx.filter = 'blur(3px)';
     const panelWidth = 3000;
     const shift = camera * .22;
     for (let panel = 0; panel < 3; panel++) {
@@ -265,11 +251,18 @@ function drawWorld(level) {
   ctx.fillStyle = water; ctx.fillRect(3130, world.ground + 8, 700, 96);
   for (let x = 3150; x < 3820; x += 56) { ctx.strokeStyle = '#a2f1eb'; ctx.globalAlpha = .55; ctx.beginPath(); ctx.moveTo(x + Math.sin(time * 2 + x) * 8, 630 + (x % 4) * 8); ctx.lineTo(x + 23, 630 + (x % 4) * 8); ctx.stroke(); }
   ctx.globalAlpha = 1;
-  roundedRect(3160, 558, 640, 27, 6, '#755548');
+  roundedRect(3100, 558, 760, 27, 6, '#755548');
   for (let x = 3180; x < 3790; x += 68) { ctx.fillStyle = '#aa7956'; ctx.fillRect(x, 555, 6, 34); }
   ctx.fillStyle = '#574252';
   for (let x = 3175; x < 3790; x += 105) ctx.fillRect(x, 584, 9, 30);
   for (const platform of world.platforms) drawPlatform(platform, level);
+  for (const [i, cp] of world.checkpoints.entries()) {
+    const base = cp.x === 3130 ? 558 : 602;
+    roundedRect(cp.x-7,base-57,31,57,14,'#424b70');
+    ctx.save(); ctx.strokeStyle = i <= player.checkpoint ? '#ffe18b' : '#82bdec';
+    ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = 16; ctx.lineWidth = 3;
+    ctx.beginPath();ctx.moveTo(cp.x+8,base-45);ctx.lineTo(cp.x+17,base-30);ctx.lineTo(cp.x+8,base-17);ctx.lineTo(cp.x,base-30);ctx.closePath();ctx.stroke();ctx.restore();
+  }
   for (let x = 650; x < world.width; x += 510) drawMushroom(x, world.ground - 1, 1 + level * .6);
   drawTree(5500, world.ground, 1.65, true);
   // The glowing ancestral tree silhouette grows brighter with the rescued stars.
@@ -303,16 +296,17 @@ function drawLumi() {
     const frameWidth = lumiArt.naturalWidth / 4;
     const frameHeight = lumiArt.naturalHeight / 2;
     let pose = 0;
-    if (!player.onGround) pose = player.vy < 0 ? 4 : 5;
+    if (won) pose = 7;
+    else if (!player.onGround) pose = player.vy < 0 ? 4 : 5;
     else if (player.land > .7) pose = 6;
     else if (won) pose = 7;
-    else if (Math.abs(player.vx) > 235) pose = 3;
-    else if (Math.abs(player.vx) > 28) pose = Math.floor(player.anim / 5) % 2 + 1;
+    else if (Math.abs(player.vx) > 235) pose = [1,3,2,3][Math.floor(player.anim) % 4];
+    else if (Math.abs(player.vx) > 28) pose = Math.floor(player.anim) % 2 + 1;
     const [column, row] = spriteFrames[pose];
     const sourceX = column * frameWidth, sourceY = row * frameHeight;
     const destinationWidth = 132, destinationHeight = 136;
     ctx.save();
-    ctx.translate(player.x + player.w / 2, player.y + player.h / 2);
+    ctx.translate(player.x + player.w / 2, player.y + player.h - 53);
     ctx.scale(player.facing, 1);
     ctx.globalAlpha = .22;
     ctx.fillStyle = '#040817'; ctx.beginPath(); ctx.ellipse(0, 33, 28, 6, 0, 0, Math.PI * 2); ctx.fill();
@@ -359,6 +353,13 @@ function draw() {
   const secretStars = world.stars.filter(star => star.secret && star.got).length;
   document.querySelector('#progressText').textContent = `✦ ${mainStars}/20　✧ ${secretStars}/3`;
 }
+function togglePause() {
+  paused = !paused; keys.clear(); document.querySelector('#pauseButton').textContent = paused ? 'Continuar' : 'Pausar';
+}
+document.querySelector('#pauseButton').onclick = togglePause;
+document.querySelector('#motionButton').onclick = () => { reducedMotion = !reducedMotion; document.querySelector('#motionButton').setAttribute('aria-pressed', reducedMotion); };
+document.querySelector('#explore').onclick = () => { won = false; document.querySelector('#ending').hidden = true; canvas.focus(); };
+document.querySelector('#restart').onclick = () => { world.stars.forEach(s => s.got=false); won=false; endingShown=false; player.checkpoint=0; camera=0; respawn(); document.querySelector('#ending').hidden=true; canvas.focus(); };
 function loop(now) {
   const dt = Math.min(.032, (now - last) / 1000 || 0); last = now;
   update(dt); draw(); requestAnimationFrame(loop);

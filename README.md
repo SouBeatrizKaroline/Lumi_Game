@@ -10,6 +10,12 @@ O jogo também incorpora arte ilustrada criada a partir dessa direção, com cen
 
 ## Jogar
 
+### Revisão de interação
+
+Colisões são resolvidas por eixo em `physics.js`, usando as mesmas dimensões das superfícies visíveis. A ponte tem um corpo sólido; cair no riacho retorna ao último checkpoint preservando as estrelas. O pulo dispara uma vez por pressionamento; soltar a tecla reduz sua altura. Escape ou o botão Pausar interrompem a partida. O final oferece explorar e recomeçar.
+
+Execute `node physics.test.cjs` para verificar pouso em alta velocidade, paredes, teto, ponte e queda sem chão invisível. Esses testes não substituem uma partida completa: alcance das 23 estrelas, animações e controles móveis ainda precisam dessa validação. A arte do personagem usa uma folha com oito poses, com acabamento de recorte ainda limitado.
+
 Abra `index.html` em um navegador ou sirva a pasta com qualquer servidor estático. Não há dependências nem build obrigatório.
 
 - **A/D** ou **←/→**: mover
