@@ -1,66 +1,79 @@
 # Lumi & the Lost Stars
 
-Um jogo web 2D cozy de plataforma e exploração em uma floresta mágica. Lumi é uma gatinha preta/chumbo, de olhos dourados, capa azul e pingente de estrela. Cada fragmento recuperado devolve luz e vida ao cenário.
+Jogo 2D cozy de plataforma, sem Game Over. Lumi recupera 20 estrelas principais e 3 secretas para devolver a luz à floresta.
 
-![Referência visual de Lumi & the Lost Stars](reference-lumi-concept.png)
+**[Jogar no navegador](https://soubeatrizkaroline.github.io/Lumi_Game/)**
 
-> A imagem acima é a direção visual do projeto: paleta azul-noturna e dourada, expressão carismática, cogumelos luminosos, riacho, ponte, clareira e Árvore Ancestral.
+## Revisão jogável
 
-O jogo também incorpora arte ilustrada criada a partir dessa direção, com cenários e sprites animados em `forest-art.png` e `lumi-spritesheet.png`.
+A simulação agora é independente do desenho e avança em passos fixos de 1/120 s. As plataformas suspensas são atravessáveis por baixo: Lumi pousa em seu topo, sem prender a cabeça ou esbarrar nas laterais. O terreno e a ponte são sólidos. O percurso tem chão seguro e saltos com margem; as superfícies decorativas do fundo antigo não são apresentadas como plataformas.
 
-## Jogar
+A personagem usa animação contínua desenhada em Canvas, com proporções constantes, passada ligada ao deslocamento, cauda, lenço, piscadas e compressão ao pousar. A antiga folha de oito poses inconsistentes não é carregada. O fundo ilustrado é recortado para o plano distante e seu desfoque é calculado uma única vez; objetos distantes fora da câmera não recebem efeitos luminosos.
 
-### Revisão de interação
+## Controles
 
-Colisões são resolvidas por eixo em `physics.js`, usando as mesmas dimensões das superfícies visíveis. A ponte tem um corpo sólido; cair no riacho retorna ao último checkpoint preservando as estrelas. O pulo dispara uma vez por pressionamento; soltar a tecla reduz sua altura. Escape ou o botão Pausar interrompem a partida. O final oferece explorar e recomeçar.
+| Ação | Teclado | Celular |
+| --- | --- | --- |
+| Andar | A/D ou ←/→ | Botões direcionais |
+| Pular | Espaço, W ou ↑ | Botão de pulo |
+| Salto alto | Segurar o pulo | Segurar o botão |
+| Descer de plataforma | S/↓ + pulo | Descer + pulo |
+| Voltar ao checkpoint | R | Pausar e recomeçar reinicia a partida inteira |
+| Pausar/continuar | Escape ou botão | Botão Pausar |
 
-Execute `node physics.test.cjs` para verificar pouso em alta velocidade, paredes, teto, ponte e queda sem chão invisível. Esses testes não substituem uma partida completa: alcance das 23 estrelas, animações e controles móveis ainda precisam dessa validação. A arte do personagem usa uma folha com oito poses, com acabamento de recorte ainda limitado.
+Botões touch aceitam movimento e salto simultâneos. Ao sair da aba ou perder o foco, a partida pausa e apresenta **Continuar**, evitando movimento preso ou uma pausa invisível.
 
-Abra `index.html` em um navegador ou sirva a pasta com qualquer servidor estático. Não há dependências nem build obrigatório.
+## Mecânicas
 
-- **A/D** ou **←/→**: mover
-- **Espaço**, **W** ou **↑**: pular
-- **R**: voltar ao último checkpoint
-- No celular: use os botões na tela
+- Aceleração e frenagem suaves, salto de altura variável, coyote time de 120 ms e jump buffer de 150 ms.
+- 20 plataformas e estrelas principais; três estrelas violetas alcançáveis com saltos extras.
+- Quatro pontos seguros, ativados ao passar perto deles no chão. Retornar preserva as estrelas.
+- Ponte contínua sobre o riacho, cogumelos, parallax, água, partículas e Árvore Ancestral.
+- Mudanças de paleta e brilho a cada cinco estrelas: 0%, 25%, 50%, 75% e 100%.
+- Final na árvore após obter as 20 principais: **The forest remembers its light.** As secretas são opcionais; é possível continuar explorando após o final.
+- Sons opcionais (desligados inicialmente), movimento reduzido respeitando a preferência do sistema e alto contraste no menu de pausa.
 
-## Mecânicas do MVP
+## Executar localmente
 
-- 20 estrelas principais + 3 estrelas secretas.
-- Personagem e cenário redesenhados com formas detalhadas no canvas, expressão, cauda e lenço animados, brilho, partículas e parallax.
-- Arte estilizada com azul noturno, roxo, dourado e silhuetas de floresta, seguindo a prancha conceitual.
-- Pulo com coyote time, jump buffer, aceleração e desaceleração.
-- Colisão consistente com topo, laterais e parte inferior das plataformas, subpassos contra atravessamentos e rota contínua até o final.
-- Animação de corrida, salto e aterrissagem para Lumi, com cauda, olhos, lenço e pingente animados.
-- Cenário com camadas de parallax, céu em evolução, água animada, cogumelos, lanternas, partículas e brilho das estrelas.
-- Plataformas, riacho, ponte, cogumelos luminosos, parallax e partículas.
-- Checkpoints e respawn sem Game Over.
-- A floresta muda em 0%, 25%, 50%, 75% e 100% das estrelas principais.
-- Clareira e Árvore Ancestral no final.
-- Sequência final: **“The forest remembers its light.”**
-- Interface minimalista, controles touch, alto contraste e status acessível.
+Não há instalação de dependências nem etapa de build. Abra `index.html` no navegador ou, com Python instalado, execute na pasta do projeto:
+
+```sh
+python -m http.server 8080
+```
+
+Abra `http://localhost:8080`. Para testes, é necessário Node.js:
+
+```sh
+node core.test.cjs
+```
+
+Os testes usam a mesma simulação da página. Um agente de teste anda e pula pela rota inteira, pousa nas 20 plataformas, coleta 20+3 estrelas e chega ao final sem teletransportar a personagem. Outros casos verificam salto curto/alto, coyote time, buffer, descida, respawn e travessia da ponte. Isso verifica a lógica, não substitui avaliação visual nem garante uma taxa de quadros em todos os celulares.
 
 ## Estrutura
 
-| Arquivo | Função |
+| Arquivo | Responsabilidade |
 | --- | --- |
-| `index.html` | Estrutura da página, HUD e controles |
-| `style.css` | Layout responsivo e identidade visual |
-| `game.js` | Loop do jogo, física, colisões, coleta e desenho |
-| `forest-art.png` | Fundo ilustrado da floresta mágica |
-| `lumi-spritesheet.png` | Lumi em oito poses para animação |
+| `core.js` | Mapa, física determinística, colisões, coleta, checkpoints e final |
+| `renderer.js` | Personagem, cenário, câmera e partículas |
+| `game.js` | Entrada, passo fixo, interface, pausa e áudio |
+| `core.test.cjs` | Percurso completo e regressões da simulação |
+| `index.html`, `style.css` | Interface responsiva e controles acessíveis |
+| `forest-art.png` | Ilustração de fundo distante |
+| `reference-lumi-concept.png` | Referência visual original |
+| `lumi-spritesheet.png` | Estudo visual anterior, não usado em execução |
 
-## Roadmap
+## Direção visual e limitações
 
-1. Expandir o mapa com novas rotas e áreas secretas.
-2. Adicionar áudio ambiente e feedback sonoro opcional.
-3. Evoluir os sprites desenhados em canvas para arte final baseada na imagem conceitual.
-4. Adicionar salvamento local de progresso e mais opções de acessibilidade.
-5. Publicar automaticamente no GitHub Pages.
+![Prancha conceitual](reference-lumi-concept.png)
 
-## Deploy
+A prancha orienta cores, personagem e atmosfera; a arte atual em Canvas é uma interpretação simplificada, não uma reprodução da ilustração. Esta revisão prioriza controle previsível e legibilidade. Não há salvamento entre sessões, navegação completa por leitor de tela nem validação de desempenho em aparelhos móveis físicos.
 
-O workflow em `.github/workflows/pages.yml` publica automaticamente a raiz do projeto no GitHub Pages a cada push em `main`, sem dependências de build.
+## Publicação e roadmap
+
+O GitHub Actions executa os testes e publica no GitHub Pages em cada push para `main`. Uma falha nos testes impede a publicação.
+
+Próximas melhorias: sprites finais com pivôs consistentes; plataformas com arte pintada sem alterar seus colisores; rotas secretas menos lineares; trilha ambiente; salvamento; testes em dispositivos físicos e ampliação de acessibilidade.
 
 ## Licença
 
-MIT. Projeto criado como um MVP autoral e aberto para evolução.
+MIT. Consulte `LICENSE`.

@@ -1,44 +1,17 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#101b3d" />
-  <meta name="description" content="Lumi & the Lost Stars — um jogo cozy de plataforma e exploração em uma floresta mágica." />
-  <title>Lumi & the Lost Stars</title>
-  <link rel="stylesheet" href="style.css?v=illustrated-3" />
-  <link rel="preload" as="image" href="forest-art.png?v=illustrated-3" />
-  <link rel="preload" as="image" href="lumi-spritesheet.png?v=illustrated-3" />
-</head>
-<body>
-  <main class="game-shell">
-    <header class="hud" aria-label="Game status">
-      <div class="brand"><span class="brand-star">✦</span><span>Lumi <em>&amp; the Lost Stars</em></span></div>
-      <div class="status-row">
-        <button id="pauseButton" type="button">Pausar</button>
-        <button id="motionButton" type="button" aria-pressed="false">Movimento reduzido</button>
-        <span class="progress-label" id="progressText">✦ 0/20　✧ 0/3</span>
-        <button class="icon-button" id="soundButton" type="button" aria-label="Alternar som" aria-pressed="false">♫</button>
-        <button class="icon-button" id="contrastButton" type="button" aria-label="Alternar alto contraste" aria-pressed="false">◐</button>
-      </div>
-    </header>
-    <section class="game-wrap" aria-label="Área jogável">
-      <canvas id="game" width="1280" height="720" tabindex="0" aria-label="Jogo de plataforma da Lumi. Use as setas ou A e D para andar, Espaço para pular."></canvas>
-      <div class="message" id="message" role="status" aria-live="polite"></div>
-      <div id="ending" hidden style="position:absolute;inset:15%;background:#101b3df5;padding:30px;text-align:center;border:1px solid #ffd86b;border-radius:20px">
-        <h1>The forest remembers its light.</h1>
-        <p>As 20 estrelas voltaram à floresta. Você pode continuar procurando as três secretas.</p>
-        <button id="explore">Explorar a floresta</button>
-        <button id="restart">Jogar novamente</button>
-      </div>
-      <div class="touch-controls" aria-label="Controles de toque">
-        <button data-key="left" aria-label="Mover para esquerda">◀</button><button data-key="jump" aria-label="Pular">✦</button><button data-key="right" aria-label="Mover para direita">▶</button>
-      </div>
-      <div class="help"><span>A/D ou ←/→ andar</span><span>Espaço pula</span><span>R volta ao checkpoint</span></div>
-    </section>
-    <footer><span>✦ exploração mágica · sem Game Over</span><span id="checkpointText">Checkpoint: início da floresta</span></footer>
-  </main>
-  <script src="physics.js?v=coherent-4"></script>
-  <script src="game.js?v=coherent-4"></script>
-</body>
-</html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1429"><title>Lumi &amp; the Lost Stars</title><meta name="description" content="Uma pequena gata. Uma floresta sem estrelas. Uma jornada para devolver a luz ao mundo."><link rel="stylesheet" href="style.css?v=playable-5"></head>
+<body><main class="game-shell">
+  <header><div class="brand">Lumi <span>&amp; the Lost Stars</span></div><div class="hud"><span id="progressText">★ 0/20　✧ 0/3</span><button id="soundButton" aria-pressed="false">Som: desligado</button><button id="pauseButton">Pausar</button></div></header>
+  <div class="game-wrap">
+    <canvas id="game" width="960" height="600" tabindex="0" aria-label="Lumi: use A e D ou setas para andar; Espaço para pular. Escape pausa. Plataformas com musgo são pisáveis."></canvas>
+    <div id="message" role="status" aria-live="polite"></div>
+    <div id="overlay">
+      <section id="startPanel" class="panel"><span class="eyebrow">UMA PEQUENA GATA. UMA GRANDE JORNADA.</span><h1>Lumi <small>&amp; the Lost Stars</small></h1><p>Recupere as 20 estrelas e leve a luz à Árvore Ancestral. Três estrelas secretas esperam nas alturas.</p><p class="instructions">← → ou A/D para andar · Espaço para pular<br>Segure para saltar mais alto. ↓ + pulo desce das plataformas.</p><button id="start" class="primary">Entrar na floresta →</button></section>
+      <section id="pausePanel" class="panel" hidden><h1>Uma pausa na floresta</h1><p>Seu progresso está aqui, esperando por você.</p><div class="settings"><label><input type="checkbox" id="motionButton"> Reduzir movimentos decorativos</label><label><input type="checkbox" id="contrastButton"> Aumentar contraste</label></div><button id="resume" class="primary">Continuar</button><button id="restart">Recomeçar a jornada</button></section>
+      <section id="winPanel" class="panel" hidden><span class="eyebrow">A LUZ VOLTOU</span><h1>The forest remembers its light.</h1><p id="result"></p><button id="explore" class="primary">Explorar a floresta</button><button id="replay">Jogar novamente</button></section>
+    </div>
+  </div>
+  <div class="touch-controls" aria-label="Controles de toque"><div><button data-action="left" aria-label="Esquerda">◀</button><button data-action="right" aria-label="Direita">▶</button></div><div><button data-action="down" aria-label="Descer">↓</button><button data-action="jump" class="jump" aria-label="Pular">Pular ↑</button></div></div>
+  <footer><span id="checkpointText">Início da floresta</span><label>Luz da floresta <progress id="progress" max="20" value="0"></progress></label><span class="desktop-help">Espaço: pulo · Esc: pausa · R: retornar</span></footer>
+</main><script src="core.js?v=playable-5"></script><script src="renderer.js?v=playable-5"></script><script src="game.js?v=playable-5"></script></body></html>
