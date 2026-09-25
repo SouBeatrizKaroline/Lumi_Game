@@ -4,8 +4,9 @@ const W = canvas.width;
 const H = canvas.height;
 const keys = new Set();
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const forestArt = new Image(); forestArt.src = 'forest-art.png';
-const lumiArt = new Image(); lumiArt.src = 'lumi-spritesheet.png';
+const assetVersion = '?v=illustrated-2';
+const forestArt = new Image(); forestArt.src = `forest-art.png${assetVersion}`;
+const lumiArt = new Image(); lumiArt.src = `lumi-spritesheet.png${assetVersion}`;
 const spriteFrames = [
   [0,0], [1,0], [2,0], [3,0],
   [0,1], [1,1], [2,1], [3,1]
