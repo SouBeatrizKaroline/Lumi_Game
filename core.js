@@ -9,8 +9,15 @@
     const ground = [{id:'earth-a',x:0,y:FLOOR,w:2050,h:200}, {id:'bridge',x:2050,y:FLOOR,w:700,h:22,bridge:true}, {id:'earth-b',x:2750,y:FLOOR,w:WIDTH-2750,h:200}];
     const stars = platforms.map((p,i)=>({id:i,x:p.x+p.w/2,y:p.y-34,secret:false,got:false}));
     [3,9,16].forEach((i,j)=>stars.push({id:20+j,x:platforms[i].x+82,y:platforms[i].y-145,secret:true,got:false}));
-    const checkpoints = [{x:90,name:'Início da floresta'},{x:1500,name:'Bosque dos cogumelos'},{x:2850,name:'Depois do riacho'},{x:4140,name:'Clareira ancestral'}];
-    return {width:WIDTH,floor:FLOOR,platforms,ground,solids:[...ground,...platforms],stars,checkpoints,treeX:5210};
+    const checkpoints = [{x:90,name:'Entrada da Floresta'},{x:1500,name:'Bosque dos Cogumelos'},{x:2850,name:'Riacho Azul'},{x:4140,name:'Clareira das Estrelas'}];
+    const stages = [
+      {id:0,name:'Entrada da Floresta',from:0,to:1350,color:'#20334b'},
+      {id:1,name:'Bosque dos Cogumelos',from:1350,to:2750,color:'#26395a'},
+      {id:2,name:'Riacho Azul',from:2750,to:4050,color:'#244c62'},
+      {id:3,name:'Clareira das Estrelas',from:4050,to:5000,color:'#493b69'},
+      {id:4,name:'Árvore Ancestral',from:5000,to:WIDTH,color:'#604a68'}
+    ];
+    return {width:WIDTH,floor:FLOOR,platforms,ground,solids:[...ground,...platforms],stars,checkpoints,stages,treeX:5210};
   }
   function create() {
     return {level:level(), player:{x:90,y:FLOOR-60,w:36,h:60,vx:0,vy:0,grounded:true,support:'earth-a',facing:1,coyote:.12,buffer:0,drop:0,land:0,stride:0},checkpoint:0,time:0,main:0,secret:0,stage:0,won:false,endingSeen:false,deaths:0,events:[]};
@@ -75,7 +82,7 @@
         g.events.push({type:'star',...star});
       }
     }
-    const nextStage=Math.floor(g.main/5);
+    const nextStage=Math.min(4,Math.floor(g.main/5));
     if(nextStage!==g.stage) {g.stage=nextStage;g.events.push({type:'stage',stage:g.stage});}
     for(let i=g.checkpoint+1;i<l.checkpoints.length;i++) {
       if(Math.abs(p.x-l.checkpoints[i].x)<65&&p.grounded&&p.y+p.h===FLOOR) {

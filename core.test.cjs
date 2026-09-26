@@ -5,6 +5,8 @@ function go(g,x){let frames=0;while(!g.won&&(Math.abs(g.player.x-x)>2||Math.abs(
 function leap(g,x){tick(g,{jumpPressed:true});let frames=0;while(!g.player.grounded){const d=x-g.player.x;tick(g,{right:d>2,left:d< -2});if(++frames>500)throw Error('jump never landed');}return frames;}
 // A full traversal uses only controls, no teleporting or direct star collection.
 let g=C.create();
+assert.deepEqual(g.level.stages.map(s=>s.name),['Entrada da Floresta','Bosque dos Cogumelos','Riacho Azul','Clareira das Estrelas','Árvore Ancestral']);
+assert.equal(g.level.checkpoints.length,4);
 go(g,210);
 for(let i=0;i<20;i++){
   const p=g.level.platforms[i], target=p.x+p.w/2-g.player.w/2;
@@ -17,6 +19,7 @@ for(let i=0;i<20;i++){
 }
 go(g,g.level.treeX);
 assert.equal(g.main,20);assert.equal(g.secret,3);assert.equal(g.won,true);assert.equal(g.deaths,0);
+assert.equal(g.stage,4);
 console.log('PASS complete journey: 20 main + 3 secret stars, all 20 landings, ending, no respawns');
 // Jump edges, variable height and coyote time.
 g=C.create();tick(g,{jumpPressed:true});let top=g.player.y;for(let i=0;i<140;i++){tick(g);top=Math.min(top,g.player.y);}assert.ok(g.player.grounded);assert.ok(460-top>155);

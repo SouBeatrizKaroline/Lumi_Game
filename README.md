@@ -23,13 +23,23 @@ A personagem usa animação contínua desenhada em Canvas, com proporções cons
 
 Botões touch aceitam movimento e salto simultâneos. Ao sair da aba ou perder o foco, a partida pausa e apresenta **Continuar**, evitando movimento preso ou uma pausa invisível.
 
+## Estágios
+
+A rota é dividida em cinco capítulos contínuos, com checkpoint e mudança gradual de paleta, partículas e elementos do primeiro plano:
+
+1. **Entrada da Floresta** — azul profundo e lanternas distantes.
+2. **Bosque dos Cogumelos** — violetas, cogumelos luminosos e flores despertando.
+3. **Riacho Azul** — água, ponte e reflexos ciano.
+4. **Clareira das Estrelas** — céu violeta e constelações mais fortes.
+5. **Árvore Ancestral** — dourado, brilho máximo e encerramento.
+
 ## Mecânicas
 
 - Aceleração e frenagem suaves, salto de altura variável, coyote time de 120 ms e jump buffer de 150 ms.
 - 20 plataformas e estrelas principais; três estrelas violetas alcançáveis com saltos extras.
 - Quatro pontos seguros, ativados ao passar perto deles no chão. Retornar preserva as estrelas.
 - Ponte contínua sobre o riacho, cogumelos, parallax, água, partículas e Árvore Ancestral.
-- Mudanças de paleta e brilho a cada cinco estrelas: 0%, 25%, 50%, 75% e 100%.
+- Mudanças de paleta, brilho e capítulo a cada cinco estrelas: 0%, 25%, 50%, 75% e 100%.
 - Final na árvore após obter as 20 principais: **The forest remembers its light.** As secretas são opcionais; é possível continuar explorando após o final.
 - Sons opcionais (desligados inicialmente), movimento reduzido respeitando a preferência do sistema e alto contraste no menu de pausa.
 

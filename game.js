@@ -40,7 +40,7 @@ function processEvents(){for(const e of game.events){
   if(e.type==='star')tone(e.secret?920:720);
   if(e.type==='checkpoint')say(`Ponto seguro ativado: ${e.name}.`);
   if(e.type==='respawn')say('De volta ao ponto seguro. Suas estrelas continuam com você.');
-  if(e.type==='stage')say(['','Os cogumelos despertaram.','As flores voltaram a abrir.','O céu recupera suas constelações.','A floresta recuperou toda a luz.'][e.stage]);
+  if(e.type==='stage')say(`Novo estágio: ${game.level.stages[e.stage].name}.`);
   if(e.type==='win'){showMode('won');$('result').textContent=`20/20 estrelas principais · ${game.secret}/3 secretas`;tone(1040);}
 }}
 function frame(now){
@@ -56,7 +56,7 @@ function frame(now){
   renderer.draw(game,mode==='playing'?elapsed:0,reduced);
   $('progressText').textContent=`★ ${game.main}/20　✧ ${game.secret}/3`;
   $('progress').value=game.main;
-  $('checkpointText').textContent=game.level.checkpoints[game.checkpoint].name;
+  $('checkpointText').textContent=`Estágio ${game.stage+1}/5 · ${game.level.stages[game.stage].name}`;
   requestAnimationFrame(frame);
 }
 showMode('start');requestAnimationFrame(frame);
